@@ -24,8 +24,8 @@ def get_db():
 async def index ():
        return {"message": "Hello World!"}
 
-@app.post("/blog/create/", status_code=201)
-async def creat_blog(request:BlogPydantic, db:Session = Depends(get_db)): # created an instance of Session that will work as a connection and db will be the variable for this . Everything will be done through db variable related to database.
+@app.post("/blog/", status_code=201)
+async def create(request:BlogPydantic, db:Session = Depends(get_db)): # created an instance of Session that will work as a connection and db will be the variable for this . Everything will be done through db variable related to database.
      try:
             new_blog = models.Blog(title = request.title , descritpion = request.descritpion, created_at = request.created_at) # creating instance of model Blog class here to isert data and mapped with db and class
             db.add(new_blog)
@@ -40,8 +40,8 @@ async def creat_blog(request:BlogPydantic, db:Session = Depends(get_db)): # crea
         # return JSONResponse(status_code=404, content= {"error" : "Blog cannot be created", "errorDetail" : f"The error is: {e}", }) also working
 
 # get all the blogs under a particular tables
-@app.get("/blog/showAll/", status_code=200)
-async def get_all_blogs(db:Session = Depends(get_db)):
+@app.get("/blog/", status_code=200)
+async def all(db:Session = Depends(get_db)):
         blogs = db.query(models.Blog).all() # .all() give list of blogs
         print(blogs)
         if blogs == None:           
@@ -81,8 +81,8 @@ async def get_all_blogs(db:Session = Depends(get_db)):
 
 
 # get single blog post by id dynamically : Also handling HHPException with status code if post is not found of desired id
-@app.get("/blog/showSinglePost/{id}" , status_code=200)
-async def get_single_blogpost(id:int, db:Session = Depends(get_db)):
+@app.get("/blog/{id}" , status_code=200)
+async def show(id:int, db:Session = Depends(get_db)):
      single_post = db.query(models.Blog).filter(id == models.Blog.id).first()
      print(single_post)
      if not single_post : # means if single_post== None
@@ -93,8 +93,8 @@ async def get_single_blogpost(id:int, db:Session = Depends(get_db)):
              
      
 # get delete blog post by id dynamically :
-@app.delete("/blog/delete/{id}", status_code=200)
-async def delete_single_blogpost(id:int, db: Session = Depends(get_db)):
+@app.delete("/blog/{id}", status_code=200)
+async def delete(id:int, db: Session = Depends(get_db)):
         single_post = db.query(models.Blog).filter(id == models.Blog.id).first() # getting the record of desired blog id 
         
         print(single_post)
@@ -109,8 +109,8 @@ async def delete_single_blogpost(id:int, db: Session = Depends(get_db)):
 
 
 
-@app.put("/blog/update/{id}", status_code=status.HTTP_202_ACCEPTED)
-async def update_blog(id:int, request: BlogPydantic,  db: Session = Depends(get_db)):
+@app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED)
+async def update(id:int, request: BlogPydantic,  db: Session = Depends(get_db)):
         try:
             blog = db.query(models.Blog).filter(id == models.Blog.id).first()     
             if blog == None:                      

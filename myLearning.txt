@@ -1,0 +1,11 @@
+
+--> How to configure DB (sqlite)
+--> How to make models using SqlAlchemy mapper
+--> How to use pydantic Model(Schemas) to get request body
+--> How to get all data from a table
+--> How to get single data based on id 
+--> How to handle HTTPException along with status_code
+--> How to return JSONResponse response
+--> How to post data into Sqlite DB using Models  or Class mapper
+--> Dynamic Routing/path 
+--> Dynamic Query parameters

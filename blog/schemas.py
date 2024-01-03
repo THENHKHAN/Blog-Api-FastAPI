@@ -38,3 +38,17 @@ class Show(BlogPydantic):
 
 # Use Pydantic's orm_mode : https://fastapi.tiangolo.com/tutorial/sql-databases/    scroll and get the doc with this heading why we are using : https://www.youtube.com/watch?v=7t2alSnE2-I&t=164s
 
+# schema for creating user
+
+class UserPydantic(BaseModel):
+     name: str
+     email: str
+     password: str
+     created_at: Optional[str] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+
+class ShowUser(BaseModel):
+     name : str
+     email: str
+     created_at: str
+     model_config = ConfigDict(from_attributes=True) 

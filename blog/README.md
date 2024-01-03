@@ -12,5 +12,5 @@
 
 # API SS:
 
-![img](./SwaggerUI_allCrud_apis.jpg)
+![userAndBlogApi](./SwaggerUI_allCrud_apis.jpg)
 

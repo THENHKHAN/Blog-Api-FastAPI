@@ -11,11 +11,20 @@ class BlogPydantic(BaseModel):
     created_at: Optional[str] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
 
-class Show(BaseModel):
-    data: BlogPydantic # means Blog class (DB table will return ap per the BlogPydantic shcema )
+# one way:
+class Show(BaseModel): 
+    #  only returning title and description # whatver attribute wa want to send response we can define here
+     title: str
+     description: str
+    #  id : int
+     model_config = ConfigDict(from_attributes=True) 
 
-    # class Config: # earlier it was  Config()
-    model_config = ConfigDict(from_attributes=True) 
+
+# Other way: # returning as per the BlogPydantic
+# class Show(BlogPydantic):  
+#    # means Blog class (DB table will return ap per the BlogPydantic shcema )
+#     model_config = ConfigDict(from_attributes=True) 
+#     # class Config: # earlier it was  Config()
     # class Config: #also working
     #     from_attributes = True  
 # Earlier it was :

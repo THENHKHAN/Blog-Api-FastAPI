@@ -9,7 +9,7 @@ class Blog(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
-    descritpion = Column(String)
+    description = Column(String)
     created_at = Column(String)
 
     def __repr__(self) -> str:

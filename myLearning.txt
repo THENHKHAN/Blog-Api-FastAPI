@@ -9,3 +9,10 @@
 --> How to post data into Sqlite DB using Models  or Class mapper
 --> Dynamic Routing/path 
 --> Dynamic Query parameters
+
+
+Important Terminlogy:
+--> In FastAPI , Models means SqlAlchemy model and pydantic model called schemas/schema.
+--> schema also called as response_model. Or Pydantice model also called response_model.
+--> path operation function : Function that execute on a particular url/path/route
+-->  path operation decorator  : Whatever we used inside path/route . Ex: @app.post("/items/", response_model=Item)

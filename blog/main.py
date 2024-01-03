@@ -6,6 +6,7 @@ from blog.database import SessionLocal, engine #blog.database we have to provide
 from . import models # # from database model
 from . import schemas # from pydantic model
 from sqlalchemy.orm import Session
+from typing import List, Dict
 
 models.Base.metadata.create_all(bind=engine) # migrating all the changes. If table is not there then create a new one and if there then it wont  create 
 
@@ -39,7 +40,6 @@ async def create(request:schemas.BlogPydantic, db:Session = Depends(get_db)): # 
         return {"status_code":404, "error":[ {"detail": "Blog not created"} , {"errorDetail" : f"The error is: {e}"} ] }
         # return JSONResponse(status_code=404, content= {"error" : "Blog cannot be created", "errorDetail" : f"The error is: {e}", }) also working
 
-# get all the blogs under a particular tables
 @app.get("/blog/", status_code=200)
 async def all(db:Session = Depends(get_db)):
         blogs = db.query(models.Blog).all() # .all() give list of blogs
@@ -47,7 +47,17 @@ async def all(db:Session = Depends(get_db)):
         if blogs == None:           
             return JSONResponse(status_code=404, content={"message": "Data not found"}) # In the key content, that has as value another JSON object (dict) that contains
         else:
-            return {"data" : blogs}  # blogs if it is a single record then it will return single record in the form of object(dict)/json but if it has multiple records then it will rturn as list of records in the form of JSON , FastAPI will take of these
+            return {"data":blogs }
+
+# get all the blogs under a particular tables
+@app.get("/blog/byResponse_model", status_code=200, response_model=Dict[str, List[schemas.Show]])
+async def all2(db:Session = Depends(get_db)):
+        blogs = db.query(models.Blog).all() # .all() give list of blogs
+        print(blogs)
+        if blogs == None:           
+            return JSONResponse(status_code=404, content={"message": "Data not found"}) # In the key content, that has as value another JSON object (dict) that contains
+        else:
+            return {"data":blogs } # blogs if it is a single record then it will return single record in the form of object(dict)/json but if it has multiple records then it will rturn as list of records in the form of JSON , FastAPI will take of these
         '''
                             {
                     "data": [
@@ -79,7 +89,6 @@ async def all(db:Session = Depends(get_db)):
                         }
         '''
 
-
 # get single blog post by id dynamically : Also handling HHPException with status code if post is not found of desired id
 @app.get("/blog/{id}" , status_code=200, response_model=schemas.Show) # we have controlled the response by response_model : Now this will return accoring to Show() schemas even we get id as well from db of Blog Class instance
 async def show(id:int, db:Session = Depends(get_db)):
@@ -90,7 +99,7 @@ async def show(id:int, db:Session = Depends(get_db)):
             raise HTTPException(status_code=404, detail={"message": f"Data not found of ID - {id}"})  # HTTPException(status_code, detail=None, headers=None) OR raise HTTPException(status_code=404, detail="Item not found")
             # https://fastapi.tiangolo.com/reference/exceptions/?h=htt
         else:
-            return {"data" : single_post} 
+            return single_post
     except Exception as e :
            raise HTTPException(status_code=500, detail= str(e))        
 

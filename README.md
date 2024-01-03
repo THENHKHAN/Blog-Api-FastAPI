@@ -1,5 +1,6 @@
-## Blog-Api-FastAPI
+## Blog-Api-FastAPI 
 I will be learning `FastAPI` with `DataBase(Sqlite)` , `SqlALchemy`. Created `Crud API` for `blog`.
+**INFO** : Go in noor1CrudWithDB/noor2 branch you will get the CRUD api for blog
 ### CRUD :
 - `Create` Blog
 - `Show All` blogs

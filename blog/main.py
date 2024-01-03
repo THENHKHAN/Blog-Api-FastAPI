@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 # importing desired dependecy from other files
 from blog.database import SessionLocal, engine #blog.database we have to provide project directgory/ package (that's y init inside the blog directory)
 from . import models # # from database model
-from .schemas import BlogPydantic # from pydantic model
+from . import schemas # from pydantic model
 from sqlalchemy.orm import Session
 
 models.Base.metadata.create_all(bind=engine) # migrating all the changes. If table is not there then create a new one and if there then it wont  create 
@@ -25,9 +25,9 @@ async def index ():
        return {"message": "Hello World!"}
 
 @app.post("/blog/", status_code=201)
-async def create(request:BlogPydantic, db:Session = Depends(get_db)): # created an instance of Session that will work as a connection and db will be the variable for this . Everything will be done through db variable related to database.
+async def create(request:schemas.BlogPydantic, db:Session = Depends(get_db)): # created an instance of Session that will work as a connection and db will be the variable for this . Everything will be done through db variable related to database.
      try:
-            new_blog = models.Blog(title = request.title , descritpion = request.descritpion, created_at = request.created_at) # creating instance of model Blog class here to isert data and mapped with db and class
+            new_blog = models.Blog(title = request.title , description = request.description, created_at = request.created_at) # creating instance of model Blog class here to isert data and mapped with db and class
             db.add(new_blog)
             db.commit()
             db.refresh(new_blog)
@@ -52,7 +52,7 @@ async def all(db:Session = Depends(get_db)):
                             {
                     "data": [
                         {
-                        "descritpion": "string1",
+                        "description": "string1",
                         "title": "string1",
                         "created_at": "02/01/2024 19:38:13",
                         "id": 1
@@ -66,13 +66,13 @@ async def all(db:Session = Depends(get_db)):
                                 {
                                 "title": "string1",
                                 "created_at": "02/01/2024 19:38:13",
-                                "descritpion": "string1",
+                                "description": "string1",
                                 "id": 1
                                 },
                                 {
                                 "title": "string333",
                                 "created_at": "02/01/2024 21:28:32",
-                                "descritpion": "strin33g",
+                                "description": "strin33g",
                                 "id": 2
                                 }
                             ]
@@ -81,17 +81,21 @@ async def all(db:Session = Depends(get_db)):
 
 
 # get single blog post by id dynamically : Also handling HHPException with status code if post is not found of desired id
-@app.get("/blog/{id}" , status_code=200)
+@app.get("/blog/{id}" , status_code=200, response_model=schemas.Show) # we have controlled the response by response_model : Now this will return accoring to Show() schemas even we get id as well from db of Blog Class instance
 async def show(id:int, db:Session = Depends(get_db)):
-     single_post = db.query(models.Blog).filter(id == models.Blog.id).first()
-     print(single_post)
-     if not single_post : # means if single_post== None
-        raise HTTPException(status_code=404, detail={"message": f"Data not found of ID - {id}"})  # HTTPException(status_code, detail=None, headers=None) OR raise HTTPException(status_code=404, detail="Item not found")
-        # https://fastapi.tiangolo.com/reference/exceptions/?h=htt
-     else:
-          return {"data" : single_post} 
-             
-     
+    try: 
+        single_post = db.query(models.Blog).filter(id == models.Blog.id).first()
+        print(single_post)# insatance of Blog model class : it will print  def __repr__(self) -> str:  return f"Id = {self.id}, title = {self.title})"
+        if not single_post : # means if single_post== None
+            raise HTTPException(status_code=404, detail={"message": f"Data not found of ID - {id}"})  # HTTPException(status_code, detail=None, headers=None) OR raise HTTPException(status_code=404, detail="Item not found")
+            # https://fastapi.tiangolo.com/reference/exceptions/?h=htt
+        else:
+            return {"data" : single_post} 
+    except Exception as e :
+           raise HTTPException(status_code=500, detail= str(e))        
+
+
+
 # get delete blog post by id dynamically :
 @app.delete("/blog/{id}", status_code=200)
 async def delete(id:int, db: Session = Depends(get_db)):
@@ -108,16 +112,16 @@ async def delete(id:int, db: Session = Depends(get_db)):
             # return {"status" : f"Blog of id: {id} deleted successfully" , "remainingBlog" : blog} 
 
 
-
+#  for update
 @app.put("/blog/{id}", status_code=status.HTTP_202_ACCEPTED)
-async def update(id:int, request: BlogPydantic,  db: Session = Depends(get_db)):
+async def update(id:int, request: schemas.BlogPydantic,  db: Session = Depends(get_db)):
         try:
             blog = db.query(models.Blog).filter(id == models.Blog.id).first()     
             if blog == None:                      
                 raise HTTPException(status_code=404, detail={"message": f"Data not found of ID - {id}"})
             else:
-                blog = db.query(models.Blog).filter(id == models.Blog.id).update({"title": request.title, "descritpion":request.descritpion})        
-                # blog = db.query(models.Blog).filter(id == models.Blog.id).update({"title": request.title, "descritpion":request.descritpion}, synchronize_session='evaluate')  also work       
+                blog = db.query(models.Blog).filter(id == models.Blog.id).update({"title": request.title, "description":request.description})        
+                # blog = db.query(models.Blog).filter(id == models.Blog.id).update({"title": request.title, "description":request.description}, synchronize_session='evaluate')  also work       
                 db.commit()
                 return {"status" : f"Blog of id: {id} Updated successfully"}
         except Exception as e :
@@ -137,7 +141,7 @@ async def update(id:int, request: BlogPydantic,  db: Session = Depends(get_db)):
 
             # Update the blog attributes
             blog.title = request.title
-            blog.descritpion = request.descritpion
+            blog.description = request.description
 
             # Commit the changes to the database
             db.commit()

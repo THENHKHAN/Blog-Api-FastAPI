@@ -12,10 +12,11 @@ I will be learning `FastAPI` with `DataBase(Sqlite)` , `SqlALchemy`. Created `Cr
 ![img](./SwaggerUI_allCrud_apis.jpg)
 
 ### How branch is made in serialwise:
-1- testing
-2- noor1CrudWithDB
-3- noor2 : made some chnages in noor1CrudWithDB branch
-4- noor3 : correted the routing name and function
-5- user : created user table and 3 routes - create , show and show particular user
-6- relationship : made relationship with user and blog table with PK-FK
-7- Apirouter: Curruntly working
+
+1- testing </br>
+2- noor1CrudWithDB </br>
+3- noor2 : made some chnages in noor1CrudWithDB branch </br>
+4- noor3 : correted the routing name and function </br>
+5- user : created user table and 3 routes - create , show and show particular user </br>
+6- relationship : made relationship with user and blog table with PK-FK </br>
+7- Apirouter: Curruntly working </br>

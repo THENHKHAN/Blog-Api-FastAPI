@@ -1,10 +1,11 @@
 from fastapi import APIRouter
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI, HTTPException,Response, status
 from fastapi.responses import JSONResponse
 # importing desired dependecy from other files
 from blog.database import SessionLocal, engine #blog.database we have to provide project directgory/ package (that's y init inside the blog directory)
 from sqlalchemy.orm import Session
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from . import models # # from database model
 from . import schemas # from pydantic model
@@ -13,6 +14,17 @@ from .hashing import Hash
 models.Base.metadata.create_all(bind=engine) # migrating all the changes. If table is not there then create a new one and if there then it wont  create 
 
 app = FastAPI()
+
+# Configure CORS
+origins = ["*"]  # Update this to the specific origins of your frontend
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency
 def get_db():
@@ -27,32 +39,45 @@ def get_db():
 async def index ():
        return {"message": "Hello World!"}
 
-@app.post("/blog/", status_code=20, tags=["blogs"])
+@app.post("/blog/", status_code=201, response_model=Dict[str,str|dict], tags=["blogs"])
 async def create(request:schemas.BlogPydantic, db:Session = Depends(get_db)): # created an instance of Session that will work as a connection and db will be the variable for this . Everything will be done through db variable related to database.
      try:
             new_blog = models.Blog(title = request.title , description = request.description, created_at = request.created_at) # creating instance of model Blog class here to isert data and mapped with db and class
             db.add(new_blog)
             db.commit()
             db.refresh(new_blog)
-            return {"data" : {"status":"blog created successfully" ,"body":new_blog} }
+            return {"status": "blog created successfully" ,"blog_detail": {"title":new_blog.title, "desc":new_blog.description}} 
      
      except Exception as e:
     # By this way we can know about the type of error occurring
         print("The error is: ",e)
-        return {"status_code":404, "error":[ {"detail": "Blog not created"} , {"errorDetail" : f"The error is: {e}"} ] }
+        return {"status_code":404, "detail": f"Blog not created - error is {e}"  }
         # return JSONResponse(status_code=404, content= {"error" : "Blog cannot be created", "errorDetail" : f"The error is: {e}", }) also working
 
-@app.get("/blog/", status_code=200, tags=["blogs"])
+@app.get("/blog/", status_code=200,response_model=Dict[str, List[schemas.ShowBlog]], tags=["blogs"])
 async def all(db:Session = Depends(get_db)):
-        blogs = db.query(models.Blog).all() # .all() give list of blogs
-        print(blogs)
-        if blogs == None:           
-            return JSONResponse(status_code=404, content={"message": "Data not found"}) # In the key content, that has as value another JSON object (dict) that contains
-        else:
-            return {"data":blogs }
+        try:
+            blogs = db.query(models.Blog).all() # .all() give list of blogs
+            print(blogs)
+            print(type(blogs))
+            print("---> ")
+            # checking that every blog has associated with user id . checking And null or not
+            flag = True
+            for blog in blogs:
+                 print(blog.user_id)
+                 if blog.user_id == None:   
+                    flag = False
+                    break
+            print(flag)
+            if blogs == None or not flag : # will run either blogs is null or glag is false(user_di is null)         
+                return JSONResponse(status_code=404, content={"message": "Data not found or user id is null"}) # In the key content, that has as value another JSON object (dict) that contains
+            else:
+                return {"data":blogs }
+        except Exception as e :
+           raise HTTPException(status_code=500, detail= str(e))
 
 # get all the blogs under a particular tables
-@app.get("/blog/byResponse_model", status_code=200, response_model=Dict[str, List[schemas.Show]], tags=["blogs"])
+@app.get("/blog/byResponse_model", status_code=200, response_model=Dict[str, List[schemas.ShowBlog]], tags=["blogs"])
 async def all2(db:Session = Depends(get_db)):
         blogs = db.query(models.Blog).all() # .all() give list of blogs
         print(blogs)
@@ -92,13 +117,13 @@ async def all2(db:Session = Depends(get_db)):
         '''
 
 # get single blog post by id dynamically : Also handling HHPException with status code if post is not found of desired id
-@app.get("/blog/{id}" , status_code=200, response_model=schemas.Show, tags=["blogs"]) # we have controlled the response by response_model : Now this will return accoring to Show() schemas even we get id as well from db of Blog Class instance
+@app.get("/blog/{id}" , status_code=200, response_model=schemas.ShowBlog, tags=["blogs"]) # we have controlled the response by response_model : Now this will return accoring to Show() schemas even we get id as well from db of Blog Class instance
 async def show(id:int, db:Session = Depends(get_db)):
     try: 
         single_post = db.query(models.Blog).filter(id == models.Blog.id).first()
         print(single_post)# insatance of Blog model class : it will print  def __repr__(self) -> str:  return f"Id = {self.id}, title = {self.title})"
-        if not single_post : # means if single_post== None
-            raise HTTPException(status_code=404, detail={"message": f"Data not found of ID - {id}"})  # HTTPException(status_code, detail=None, headers=None) OR raise HTTPException(status_code=404, detail="Item not found")
+        if not single_post or single_post.user_id == None: # means if single_post== None
+            raise HTTPException(status_code=404, detail={"message": f"Data not found of ID - {id} or user id is null"})  # HTTPException(status_code, detail=None, headers=None) OR raise HTTPException(status_code=404, detail="Item not found")
             # https://fastapi.tiangolo.com/reference/exceptions/?h=htt
         else:
             return single_post

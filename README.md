@@ -4,9 +4,9 @@ I will be learning `FastAPI` with `DataBase(Sqlite)` , `SqlALchemy`. Created `Cr
 ### CRUD :
 - `Create` Blog
 - `Show All` blogs
-- Show `single blog` with desired id
-- `delete` Blog with desired id
-- `update` Blog with desired id </br>
+- `Show single blog` with desired id
+- `Delete` Blog with desired id
+- `Update` Blog with desired id </br>
 **NOTE :** `Handled Exception` very well with meaningful message if something get wrong.
 
 ![img](./SwaggerUI_allCrud_apis.jpg)

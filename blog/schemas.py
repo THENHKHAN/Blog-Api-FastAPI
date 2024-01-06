@@ -3,6 +3,8 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 
 
+
+
 # for validation and conversion : Pydantic
 class BlogPydantic(BaseModel):
     title: str

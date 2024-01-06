@@ -9,6 +9,7 @@
 --> How to post data into Sqlite DB using Models  or Class mapper
 --> Dynamic Routing/path 
 --> Dynamic Query parameters
+--> How to make relatinship between two table with PK-FK and link them in the response with response_model(or response_model schema)
 
 
 Important Terminlogy:

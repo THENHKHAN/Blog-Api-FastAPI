@@ -19,4 +19,5 @@ I will be learning `FastAPI` with `DataBase(Sqlite)` , `SqlALchemy`. Created `Cr
 4- noor3 : correted the routing name and function </br>
 5- user : created user table and 3 routes - create , show and show particular user </br>
 6- relationship : made relationship with user and blog table with PK-FK </br>
-7- Apirouter: Curruntly working </br>
+7- Apirouter: manage file structure, used prefix, tags etc.. </br>
+8- login / verify use token: Curruntly working </br>

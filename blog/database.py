@@ -14,11 +14,17 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)  # W
 Base = declarative_base()
 
 
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close() # here we are closing
 
 # IMP:
 '''
 https://fastapi.tiangolo.com/tutorial/sql-databases/#main-fastapi-app : scroll for this - Create a dependency
-
 
 
 '''
